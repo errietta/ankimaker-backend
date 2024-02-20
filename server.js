@@ -66,6 +66,21 @@ const updateChat = async (convId, convo) => {
   return response;
 }
 
+const apiKeyMiddleware = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  const validApiKey = process.env.API_KEY;
+
+  console.log({ apiKey, validApiKey })
+
+  if (!apiKey || apiKey !== validApiKey) {
+    return res.status(401).json({ error: 'Unauthorized: API key is invalid or missing' });
+  }
+
+  next();
+};
+
+app.use(apiKeyMiddleware);
+
 
 app.post('/chat', async (req, res) => {
   const { text, convId } = req.body;
