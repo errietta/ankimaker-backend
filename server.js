@@ -8,7 +8,7 @@ const { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } = requir
 require('dotenv').config()
 
 const app = express();
-const port = 1994;
+const port = Number(process.env("PORT")) || 1994;
 app.use(express.json());
 app.use(bodyParser.json());
 
