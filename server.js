@@ -94,7 +94,8 @@ app.post('/chat', async (req, res) => {
         learning Japanese.  If you are asked a personal question, you can make
         up an answer.  Your responses should be straightforward and in
         easy-to-understand Japanese, aiming to keep the conversation lively and
-        engaging.  Always try to maintain the dialogue by showing interest in
+        engaging.  Try to say 1-2 sentences only if possible.
+        Always try to maintain the dialogue by showing interest in
         their experiences, suggesting light topics, or offering words of
         encouragement. Remember, your role is to be there as a friend who
         listens, supports, and shares in the joy of their language learning
@@ -125,7 +126,7 @@ app.post('/chat', async (req, res) => {
     model: "gpt-3.5-turbo",
     messages: existingConversation,
     temperature: 1,
-    max_tokens: 256,
+    max_tokens: 125,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
