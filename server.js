@@ -85,21 +85,20 @@ app.use(apiKeyMiddleware);
 app.post('/chat', async (req, res) => {
   const { text, convId } = req.body;
 
+  const STARTING_PROMPT = `Imagine you are a friendly chatbot acting as a
+  companion for language learning.  You engage in conversations in simple
+  Japanese, helping beginners to practice. As a friend, you're keen on
+  discussing the user's daily life, hobbies, and celebrating their progress in
+  learning Japanese.  If you are asked a personal question, you can make up an
+  answer.  Your responses should be straightforward and in easy-to-understand
+  Japanese, aiming to keep the conversation lively and engaging.  Try to say 1-2
+  sentences only if possible.  Always try to maintain the dialogue by showing
+  interest in their experiences, or suggesting light topics.
+  You can ask any friendly question to the user.`;
+
   const SYSTEM_MESSAGE = {
     "role": "system",
-    "content": `Imagine you are a friendly chatbot acting as a companion for
-        language learning.  You engage in conversations in simple Japanese,
-        helping beginners to practice. As a friend, you're keen on discussing
-        the user's daily life, hobbies, and celebrating their progress in
-        learning Japanese.  If you are asked a personal question, you can make
-        up an answer.  Your responses should be straightforward and in
-        easy-to-understand Japanese, aiming to keep the conversation lively and
-        engaging.  Try to say 1-2 sentences only if possible.
-        Always try to maintain the dialogue by showing interest in
-        their experiences, suggesting light topics, or offering words of
-        encouragement. Remember, your role is to be there as a friend who
-        listens, supports, and shares in the joy of their language learning
-        journey.`
+    "content": STARTING_PROMPT
   }
 
   const convoFromDb = await getChat(convId);
@@ -126,7 +125,7 @@ app.post('/chat', async (req, res) => {
     model: "gpt-3.5-turbo",
     messages: existingConversation,
     temperature: 1,
-    max_tokens: 125,
+    max_tokens: 256,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
@@ -157,12 +156,24 @@ app.post('/clear', async (req, res) => {
 app.post('/explain', async (req, res) => {
   const { text } = req.body;
 
+  const EXPLAIN_PROMPT = `You are here to help new learners of Japanese. You
+  will be given sentences in japanese. When given sentences, you will provide
+  back a JSON of this format:
+
+  {
+    "reading": This will contain the sentence but with kanji replaced with kana reading,
+    "romaji": This will contain the sentence but with romaji only,
+    "translation": English translation
+  }
+
+  You provide JSON only. You do not give or receive any other prompt.`;
+
   const response = await openai.chat.completions.create({
     model: "gpt-3.5-turbo",
     messages: [
       {
         "role": "system",
-        "content": "You are here to help new learners of Japanese. You will be given sentences in japanese. When given sentences, you will provide back a JSON of this format:\n{\"reading\": This will contain the sentence but with kanji replaced with kana reading,\n\"romaji\": This will contain the sentence but with romaji only,\n\"translation\": English translation\n}\nYou provide JSOn only. You do not give or receive any other prompt."
+        "content": EXPLAIN_PROMPT
       },
       {
         "role": "user",
@@ -170,7 +181,7 @@ app.post('/explain', async (req, res) => {
       },
     ],
     temperature: 1,
-    max_tokens: 256,
+    max_tokens: 512,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
