@@ -81,6 +81,38 @@ const apiKeyMiddleware = (req, res, next) => {
 
 app.use(apiKeyMiddleware);
 
+app.post('/rate', async (req, res) => {
+  const { text } = req.body;
+
+  const RATE_PROMPT = `you will be given a text the user has said in Japanese. let them know if their sentence is gramatically correct and makes sense. keep it consise and factual only. do not ask any questions and do not ask for further input.`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        "role": "system",
+        "content": RATE_PROMPT
+      },
+      {
+        "role": "user",
+        "content": text,
+      },
+    ],
+    temperature: 1,
+    max_tokens: 256,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+  });
+
+
+  const resp = response?.choices?.[0]?.message?.content?.trim();
+
+  res.json({
+    prompt: text,
+    reply: resp || ''
+  });
+});
 
 app.post('/chat', async (req, res) => {
   const { text, convId } = req.body;
