@@ -3,7 +3,10 @@ const bodyParser = require('body-parser');
 const OpenAI = require("openai");
 
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
+const {
+  DynamoDBDocumentClient, GetCommand,
+  PutCommand, UpdateCommand
+} = require("@aws-sdk/lib-dynamodb");
 
 require('dotenv').config()
 
@@ -21,6 +24,10 @@ const openai = new OpenAI({
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
+const EXPLAIN_MODEL = "gpt-4o";
+const CHAT_MODEL = "gpt-4o";
+
+// "gpt-3.5-turbo"
 
 const getChat = async (convId) => {
   const command = new GetCommand({
@@ -48,7 +55,6 @@ const createChat = async (convId, convo) => {
 }
 
 const updateChat = async (convId, convo) => {
-
   const command = new UpdateCommand({
     TableName: "ttchat",
     Key: {
@@ -91,7 +97,7 @@ app.post('/rate', async (req, res) => {
   further input.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: EXPLAIN_MODEL,
     messages: [
       {
         "role": "system",
@@ -129,7 +135,8 @@ app.post('/chat', async (req, res) => {
   answer.  Your responses should be straightforward and in easy-to-understand
   Japanese, aiming to keep the conversation lively and engaging.  Try to say 1-2
   sentences only if possible.  Always try to maintain the dialogue by showing
-  interest in their experiences, or suggesting light topics. You can also ask followups related to what users say.
+  interest in their experiences, or suggesting light topics.
+  You can also ask followups related to what users say.
   You can ask any friendly question to the user.`;
 
   const SYSTEM_MESSAGE = {
@@ -158,7 +165,7 @@ app.post('/chat', async (req, res) => {
   console.log({ existingConversation: JSON.stringify(existingConversation) })
 
   const response = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: CHAT_MODEL,
     messages: existingConversation,
     temperature: 1,
     max_tokens: 256,
@@ -205,7 +212,7 @@ app.post('/explain', async (req, res) => {
   You provide JSON only. You do not give or receive any other prompt.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: EXPLAIN_MODEL,
     messages: [
       {
         "role": "system",
