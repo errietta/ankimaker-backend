@@ -284,8 +284,6 @@ app.post('/meaning', async (req, res) => {
       SYSTEM_MESSAGE,
   ];
 
-  await createChat(convId, existingConversation);
-  
   existingConversation.push({
     "role": "user",
     "content": text
@@ -304,6 +302,7 @@ app.post('/meaning', async (req, res) => {
   });
 
   const resp = response?.choices?.[0]?.message?.content?.trim();
+  console.log ({resp});
 
   let parsed = {};
 
@@ -312,6 +311,8 @@ app.post('/meaning', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
+
+  console.log({parsed});
 
   res.json({
     prompt: text,
