@@ -85,8 +85,8 @@ const apiKeyMiddleware = (req, res, next) => {
   next();
 };
 
-app.use(apiKeyMiddleware);
 app.use(cors());
+app.use(apiKeyMiddleware);
 
 app.post('/rate', async (req, res) => {
   const { text } = req.body;
