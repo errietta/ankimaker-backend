@@ -251,6 +251,68 @@ app.post('/explain', async (req, res) => {
   });
 });
 
+app.post('/meaning', async (req, res) => {
+  const { text } = req.body;
+
+  const STARTING_PROMPT = `You will receive a japanese sentence. You are to return ONLY JSON of the following:
+  1. ** sentence**: Present each sentence with kanji as typically used, always inserting kanji where applicable even if omitted by the user.
+  2. **reading**: Display the sentence with furigana formatting compatible with Anki, by adding readings in brackets next to the kanji.
+  Ensure a single regular full-width space ALWAYS precedes each kanji. Even if the kanji is at the start of the sentence, the space should still be applied.
+  For example, "わたしは 食[た]べます". or at the start of a sentence: " 食[た]べます"
+  3. **meaning **: Provide an English translation of each sentence, including necessary explanations to accurately convey the meaning.
+  Direct translation isn't required, but the essence of the message should be clear.
+  Your responses will automatically generate the required information for effective Anki Deck cards for each sentence without user confirmation or additional prompts. 
+  You are adept at handling sentences across various  contexts, supporting users from beginner to advanced levels. 
+  `;
+
+  const SYSTEM_MESSAGE = {
+    "role": "system",
+    "content": STARTING_PROMPT
+  }
+
+  const existingConversation = [
+      SYSTEM_MESSAGE,
+  ];
+
+  await createChat(convId, existingConversation);
+  
+  existingConversation.push({
+    "role": "user",
+    "content": text
+  })
+
+  console.log({ existingConversation: JSON.stringify(existingConversation) })
+
+  const response = await openai.chat.completions.create({
+    model: CHAT_MODEL,
+    messages: existingConversation,
+    temperature: 1,
+    max_tokens: 256,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+  });
+
+  const resp = response?.choices?.[0]?.message?.content?.trim();
+
+  let parsed = {};
+
+  try {
+    parsed = JSON.parse(resp);
+  } catch (e) {
+    console.error(e);
+  }
+
+  res.json({
+    prompt: text,
+    reply: {
+      reading: parsed.reading,
+      sentence: parsed.sentence,
+      meaning: parsed.meaning,
+    }
+  });
+});
+
 app.listen(port, () => {
   if (!OPENAI_SECRET_KEY) {
     throw new Exception("OPENAI_SECRET_KEY Required");
