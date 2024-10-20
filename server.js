@@ -273,7 +273,7 @@ app.post('/meaning', async (req, res) => {
   Direct translation isn't required, but the essence of the message should be clear.
   Your responses will automatically generate the required information for effective Anki Deck cards for each sentence without user confirmation or additional prompts. 
   You are adept at handling sentences across various  contexts, supporting users from beginner to advanced levels. 
-  `;
+    You provide RAW TEXT JSON only, as the text will be parsed by an app!`;
 
   const SYSTEM_MESSAGE = {
     "role": "system",
