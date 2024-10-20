@@ -211,7 +211,7 @@ app.post('/explain', async (req, res) => {
     "translation": English translation
   }
 
-  You provide RAW TEXT JSON only. DO NOT APPLY FORMATTING.. You do not give or receive any other prompt.`;
+  You provide RAW TEXT JSON only, as the text will be parsed by an app!`;
 
   const msgs = [
     {
