@@ -213,18 +213,22 @@ app.post('/explain', async (req, res) => {
 
   You provide JSON only. You do not give or receive any other prompt.`;
 
+  const msgs = [
+    {
+      "role": "system",
+      "content": EXPLAIN_PROMPT
+    },
+    {
+      "role": "user",
+      "content": text,
+    },
+  ];
+
+  console.log({msgs});
+
   const response = await openai.chat.completions.create({
     model: EXPLAIN_MODEL,
-    messages: [
-      {
-        "role": "system",
-        "content": EXPLAIN_PROMPT
-      },
-      {
-        "role": "user",
-        "content": text,
-      },
-    ],
+    messages: msgs,
     temperature: 1,
     max_tokens: 512,
     top_p: 1,
@@ -235,6 +239,8 @@ app.post('/explain', async (req, res) => {
 
   const resp = response?.choices?.[0]?.message?.content?.trim();
 
+  console.log({resp});
+
   let parsed = {};
 
   try {
@@ -242,6 +248,8 @@ app.post('/explain', async (req, res) => {
   } catch (e) {
     console.error(e);
   }
+
+  console.log({parsed});
 
   res.json({
     prompt: text,
