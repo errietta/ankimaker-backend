@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const OpenAI = require("openai");
+const { zodResponseFormat } = require("openai/helpers/zod");
 const cors = require('cors');
+import { z } = require("zod");
 
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const {
@@ -263,8 +265,14 @@ app.post('/explain', async (req, res) => {
 
 app.post('/meaning', async (req, res) => {
   const { text } = req.body;
+  const AnkiCard = z.object({
+    sentence: z.string(),
+    reading: z.string(),
+    meaning: z.string(),
+  });
 
-  const STARTING_PROMPT = `You will receive a japanese sentence. You are to return ONLY JSON of the following:
+
+  const STARTING_PROMPT = `You will receive a japanese sentence. You are to return ONLY RAW PLAINTEXT JSON of the following:
   1. ** sentence**: Present each sentence with kanji as typically used, always inserting kanji where applicable even if omitted by the user.
   2. **reading**: Display the sentence with furigana formatting compatible with Anki, by adding readings in brackets next to the kanji.
   Ensure a single regular full-width space ALWAYS precedes each kanji. Even if the kanji is at the start of the sentence, the space should still be applied.
@@ -292,13 +300,9 @@ app.post('/meaning', async (req, res) => {
   console.log({ existingConversation: JSON.stringify(existingConversation) })
 
   const response = await openai.chat.completions.create({
-    model: CHAT_MODEL,
+    model: "gpt-4o-2024-08-06",
     messages: existingConversation,
-    temperature: 1,
-    max_tokens: 256,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
+    response_format: zodResponseFormat(AnkiCard, "anki-card"),
   });
 
   const resp = response?.choices?.[0]?.message?.content?.trim();
