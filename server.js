@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const OpenAI = require("openai");
 const { zodResponseFormat } = require("openai/helpers/zod");
 const cors = require('cors');
-import { z } = require("zod");
+const { z } = require("zod");
 
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const {
