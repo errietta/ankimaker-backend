@@ -11,6 +11,9 @@ const {
   PutCommand, UpdateCommand
 } = require("@aws-sdk/lib-dynamodb");
 
+const { auth } = require('express-oauth2-jwt-bearer');
+
+
 require('dotenv').config()
 
 const app = express();
@@ -89,7 +92,16 @@ const apiKeyMiddleware = (req, res, next) => {
 };
 
 app.use(cors());
-app.use(apiKeyMiddleware);
+
+const jwtCheck = auth({
+  audience: 'https://card.backend/',
+  issuerBaseURL: 'https://cardmaker-dev.uk.auth0.com/',
+  tokenSigningAlg: 'RS256'
+});
+
+app.use(jwtCheck);
+
+//app.use(apiKeyMiddleware);
 
 app.post('/rate', async (req, res) => {
   const { text } = req.body;
