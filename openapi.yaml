@@ -1,0 +1,63 @@
+openapi: 3.1.0
+info:
+  title: Study card maker
+  version: 1.0.0
+  description: Returns the meaning, reading, and parsed sentence from the given input.
+
+servers:
+  - url: https://ankimaker-backend-88a288e4b6bb.herokuapp.com
+    description: Production server
+
+paths:
+  /meaning:
+    post:
+      operationId: postCard
+      summary: Get meaning and reading of a sentence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeaningRequest'
+      responses:
+        '200':
+          description: Successful response with meaning and reading
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeaningResponse'
+        '400':
+          description: Invalid input
+
+components:
+  schemas:
+    MeaningRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          example: これは例文です。
+
+    MeaningReply:
+      type: object
+      properties:
+        reading:
+          type: string
+          example: "これ は 例文[れいぶん] です。"
+        sentence:
+          type: string
+          example: "これは例文です。"
+        meaning:
+          type: string
+          example: "This is an example sentence."
+
+    MeaningResponse:
+      type: object
+      properties:
+        prompt:
+          type: string
+          example: "これは例文です。"
+        reply:
+          $ref: '#/components/schemas/MeaningReply'
