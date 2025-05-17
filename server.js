@@ -8,19 +8,20 @@ const { auth } = require('express-oauth2-jwt-bearer');
 
 require('dotenv').config()
 
+const OPENAI_SECRET_KEY = process.env.OPENAI_SECRET_KEY;
+const AUTH0_AUDIENCE = "https://card.backend/";
+const AUTH0_TOKEN_URL = "https://cardmaker-dev.uk.auth0.com/oauth/token";
+const ANKI_MAKER_MODEL = "gpt-4o-2024-08-06";
+
 const app = express();
 const port = process.env.PORT || 1994;
 app.use(express.json());
 app.use(bodyParser.json());
 
-const OPENAI_SECRET_KEY = process.env.OPENAI_SECRET_KEY;
-
 const openai = new OpenAI({
   apiKey: OPENAI_SECRET_KEY,
 });
 
-const ANKI_MAKER_MODEL = "gpt-4o-2024-08-06";
-  
 app.use(cors());
 
 const jwtCheck = auth({
@@ -29,8 +30,33 @@ const jwtCheck = auth({
   tokenSigningAlg: 'RS256'
 });
 
+app.post('/token', async  (req, res) => {
+  const raw = JSON.stringify({
+    "client_id": req.body.client_id,
+    "client_secret": req.body.client_secret,
+    "audience": AUTH0_AUDIENCE,
+    "grant_type": "client_credentials"
+  });
+
+  const requestOptions = {
+    method: "POST",
+    headers: {"content-type": "application/json"},
+    body: raw,
+    redirect: "follow"
+  };
+
+  try {
+    const response = await (await fetch(AUTH0_TOKEN_URL, requestOptions)).json();
+    console.log({response});
+    return res.json({ "access_token": response.access_token,  "token_type": "Bearer",  "expires_in": response.expires_in });
+  } catch (error) {
+    console.error("Error fetching token:", error);
+    return res.json({ error: "Failed to fetch token" });
+  }
+});
+
 app.use(jwtCheck);
- 
+
 app.post('/meaning', async (req, res) => {
   const { text } = req.body;
   const AnkiCard = z.object({
@@ -97,7 +123,7 @@ app.post('/meaning', async (req, res) => {
 
 app.listen(port, () => {
   if (!OPENAI_SECRET_KEY) {
-    throw new Exception("OPENAI_SECRET_KEY Required");
+    throw new Error("OPENAI_SECRET_KEY Required");
   }
   console.log(`Server running on port ${port}`);
 });
