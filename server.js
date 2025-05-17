@@ -55,7 +55,14 @@ app.post('/token', async  (req, res) => {
   }
 });
 
-app.use(jwtCheck);
+app.use((req, res, next) => {
+  const authHeader = req.headers.authorization || '';
+  const apiKey = process.env.API_KEY;
+  if (apiKey && authHeader.startsWith('Bearer ') && authHeader.split(' ')[1] === apiKey) {
+    return next();
+  }
+  return jwtCheck(req, res, next);
+});
 
 app.post('/meaning', async (req, res) => {
   const { text } = req.body;
