@@ -93,7 +93,7 @@ app.post('/meaning', async (req, res) => {
     2. **reading**: Display the sentence with pinyin formatting compatible with Anki, by adding pinyin in brackets next to the characters.
     Ensure a single regular full-width space ALWAYS precedes each character. Even if the character is at the start of the sentence, the space should still be applied.
     For example, "我[wǒ] 是[shì] 学[xué] 生[shēng]". or at the start of a sentence: " 我[wǒ] 是[shì] 学[xué] 生[shēng]"
-    3. **meaning **: Provide an English translation of each sentence, including necessary explanations to accurately convey the meaning.
+    3. **meaning **: Provide an English AND a Japanese translation of each sentence (separated with<br>), including necessary explanations to accurately convey the meaning.
     Direct translation isn't required, but the essence of the message should be clear.
     Your responses will automatically generate the required information for effective Anki Deck cards for each sentence without user confirmation or additional prompts. 
     You are adept at handling sentences across various  contexts, supporting users from beginner to advanced levels. 
