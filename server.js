@@ -89,7 +89,7 @@ app.post('/meaning', async (req, res) => {
       You provide RAW TEXT JSON only, as the text will be parsed by an app!`;
   } else if (language === "zh-CN") {
     STARTING_PROMPT = `You will receive a SIMPLIFIED Chinese sentence. You are to return ONLY RAW PLAINTEXT JSON of the following:
-    1. ** sentence**: Present each sentence with traditional Chinese characters as typically used, always inserting traditional characters where applicable even if omitted by the user.
+    1. ** sentence**: Present each sentence with simplified Chinese characters as typically used, always inserting simplified characters where applicable even if omitted by the user.
     2. **reading**: Display the sentence with pinyin formatting compatible with Anki, by adding pinyin in brackets next to the characters.
     Ensure a single regular full-width space ALWAYS precedes each character. Even if the character is at the start of the sentence, the space should still be applied.
     For example, "我[wǒ] 是[shì] 学[xué] 生[shēng]". or at the start of a sentence: " 我[wǒ] 是[shì] 学[xué] 生[shēng]"
