@@ -91,8 +91,15 @@ async function generateCard(text, language) {
   }
 }
 
-// In-memory OCR cache keyed by a fingerprint of the image data
+const crypto = require('crypto');
+
+// In-memory OCR cache keyed by SHA-256 hash of the image data
 const ocrCache = new Map();
+
+function imageCacheKey(imageBase64, imageUrl) {
+  const data = imageBase64 || imageUrl;
+  return crypto.createHash('sha256').update(data).digest('hex');
+}
 
 app.post('/token', async  (req, res) => {
   const raw = JSON.stringify({
@@ -169,15 +176,12 @@ app.post('/meaning/photo', async (req, res) => {
     return res.status(400).json({ error: "Unsupported language" });
   }
 
-  // Build cache key from image fingerprint
-  const cacheKey = imageBase64
-    ? imageBase64.slice(0, 64)
-    : imageUrl;
+  const cacheKey = imageCacheKey(imageBase64, imageUrl);
 
   let extractedText = ocrCache.get(cacheKey);
 
   if (extractedText) {
-    console.log({ ocrCacheHit: cacheKey.slice(0, 16) });
+    console.log({ ocrCacheHit: cacheKey });
   } else {
     const imageUrlContent = imageBase64
       ? `data:${mimeType || 'image/jpeg'};base64,${imageBase64}`
